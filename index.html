@@ -170,6 +170,28 @@ footer .sig{border-top:1px solid #2a3a44;margin-top:16px;padding-top:12px;displa
 .kur li{background:var(--white);border-radius:12px;padding:10px 12px;border:1px solid var(--line);font-size:.94rem}
 .ihint{font-size:.84rem;color:var(--muted);margin:12px 0 0}
 @media(max-width:820px){.infos{grid-template-columns:1fr}}
+.vfab2{position:fixed;right:16px;bottom:16px;z-index:60;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.vp{position:fixed;right:16px;bottom:16px;z-index:70;width:min(380px,calc(100vw - 32px));max-height:min(620px,calc(100vh - 32px));background:var(--white);color:var(--ink);border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.35);display:none;flex-direction:column;overflow:hidden}
+.vp.on{display:flex}
+.vp .vh{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--brand);color:#fff}
+.vp .vh b{font-family:Fraunces,Georgia,serif;font-size:1.1rem}
+.vp .vh button{background:none;border:0;color:#fff;font-size:1.6rem;cursor:pointer;line-height:1}
+.vp .vo{display:flex;flex-direction:column;align-items:center;padding:16px 16px 6px}
+.vp .orb{width:74px;height:74px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff,var(--accent));box-shadow:0 0 0 0 rgba(0,0,0,.15);transition:transform .3s}
+.vp .orb.talk{animation:vpulse 1s ease-in-out infinite}
+@keyframes vpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+.vp .vs{margin-top:8px;font-size:.9rem;color:var(--muted);text-align:center}
+.vp .vt{font-size:.8rem;color:var(--muted)}
+.vp .vl{flex:1;overflow:auto;padding:6px 14px;display:flex;flex-direction:column;gap:6px;min-height:80px}
+.vp .vm{padding:8px 11px;border-radius:12px;font-size:.92rem;max-width:88%}
+.vp .vm.u{align-self:flex-end;background:var(--foam)}
+.vp .vm.a{align-self:flex-start;background:var(--bg)}
+.vp .vm.sys{align-self:center;background:transparent;color:var(--muted);font-size:.82rem;text-align:center}
+.vp .vb{display:flex;gap:8px;padding:10px 14px}
+.vp .vb .btn{flex:1}
+.vp .vb .stop{background:#b23b2e}
+.vp .vn{font-size:.72rem;color:var(--muted);padding:0 14px 12px}
+.hid{display:none!important}
 </style>
 </head>
 <body>
@@ -315,7 +337,16 @@ footer .sig{border-top:1px solid #2a3a44;margin-top:16px;padding-top:12px;displa
   </div>
 </footer>
 
-<a class="btn accent fab" href="https://nordseebnb.de/?ort=Wangerooge">🎙️ Fragen? Assistent fragen</a>
+<button class="btn accent vfab2" id="vFab" onclick="vOpen()">🎙️ Fragen? Einfach sprechen</button>
+<div class="vp" id="vPanel" role="dialog" aria-label="Sprachassistent">
+  <div class="vh"><b>Sprachassistent WangeroogeBnB</b><button onclick="vClose()" aria-label="Schließen">×</button></div>
+  <div class="vo"><div class="orb" id="vOrb"></div><div class="vs" id="vStatus">Bereit – tippen Sie auf „Gespräch starten“</div><div class="vt" id="vTime"></div></div>
+  <div class="vl" id="vLog"><div class="vm sys">Fragen Sie zu Orten, Anreise und Fähren, Kurabgabe oder Unterkünften auf Wangerooge – auf Deutsch, Englisch, Dänisch, Niederländisch oder Französisch.</div></div>
+  <div class="vb"><button class="btn" id="vStart" onclick="vStart()">🎙️ Gespräch starten</button><button class="btn stop hid" id="vStop" onclick="vStop('Gespräch beendet.')">■ Beenden</button></div>
+  <div class="vn">Das Mikrofon ist nur während des Gesprächs aktiv (höchstens 5 Minuten). Mehr dazu in der <a href="#datenschutz" onclick="return info('datenschutz')">Datenschutzerklärung</a>.</div>
+  <audio id="vAudio" autoplay></audio>
+</div>
+
 
 <div class="modal" id="mInfo" onclick="if(event.target===this)this.classList.remove('on')"><div class="sheet"><button class="x" onclick="document.getElementById('mInfo').classList.remove('on')" aria-label="Schließen">×</button><div id="infoBody"></div></div></div>
 
@@ -330,7 +361,7 @@ var ORTE=[
  {"n": "Hafen & Inselbahn", "km": "Ankommen im Süden", "t": "Die Fähre legt im Süden der Insel an. Von dort bringt Sie die Inselbahn durch die Salzwiesen ins Dorf.", "tags": ["Inselbahn", "Hafen", "Anreise"]}
 ];
 var INFO={impressum:"<h2>Impressum</h2><p>Angaben gemäß § 5 DDG</p><p><b>Hans Fries</b><br>Im Dünenwald 4a<br>18586 Ostseebad Mönchgut<br>Deutschland</p><p><b>Kontakt</b><br>E-Mail: <a href=\"mailto:friesh@gmx.de\">friesh@gmx.de</a></p><p>NordseeBnB (nordseebnb.de), Nordsee Webdesign (nordsee-webdesign.de) sowie SyltBnB, AmrumBnB, FöhrBnB und WangeroogeBnB sind Angebote von Hans Fries.</p><p><b>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</b><br>Hans Fries, Anschrift wie oben</p><p><b>Verbraucherstreitbeilegung</b><br>Wir sind nicht bereit und nicht verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</p><p><b>Inserate</b><br>Für die Inhalte der einzelnen Inserate sind die jeweiligen Vermieterinnen und Vermieter verantwortlich. Mietverträge kommen ausschließlich zwischen Gast und Vermieter zustande.</p>",
- datenschutz:"<h2>Datenschutzerklärung</h2><p>Stand: November 2026</p><h3>1. Verantwortlicher</h3><p><b>Hans Fries</b><br>Im Dünenwald 4a<br>18586 Ostseebad Mönchgut<br>Deutschland<br>E-Mail: <a href=\"mailto:friesh@gmx.de\">friesh@gmx.de</a></p><h3>2. Das Wichtigste in Kürze</h3><p>Wir setzen keine Cookies zu Werbe- oder Analysezwecken ein und nutzen kein Tracking. Schriften und Programmbibliotheken sind direkt in die Seite eingebunden; es besteht keine Verbindung zu Google Fonts.</p><h3>3. Hosting und Server-Logfiles</h3><p>Diese Website wird über GitHub Pages bereitgestellt (GitHub Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, USA). Beim Aufruf verarbeitet GitHub technisch notwendige Daten: IP-Adresse, Datum und Uhrzeit, aufgerufene Seite, übertragene Datenmenge, Browser und Betriebssystem. Das dient der sicheren und stabilen Auslieferung der Seite (Art. 6 Abs. 1 lit. f DSGVO). Die Übermittlung in die USA erfolgt auf Grundlage des Angemessenheitsbeschlusses der EU-Kommission (EU-US Data Privacy Framework). Weitere Informationen: <a href=\"https://docs.github.com/de/site-policy/privacy-policies/github-general-privacy-statement\" target=\"_blank\" rel=\"noopener\">Datenschutzerklärung von GitHub</a>.</p><h3>4. Suche und Links</h3><p>Diese Seite speichert keine Eingaben. Wenn Sie auf „Unterkünfte suchen“ tippen, werden Ihre Suchangaben (Insel bzw. Ort, Reisedaten, Personen, Hund) als Teil der Adresse an unser Portal NordseeBnB (nordseebnb.de) übergeben; dort gilt die Datenschutzerklärung von NordseeBnB. Auch der Sprachassistent ist erst auf nordseebnb.de verfügbar.</p><h3>5. Fotos von Wikimedia Commons</h3><p>Einige Fotos auf dieser Seite stammen von Wikimedia Commons und werden beim Aufruf direkt von den Servern der Wikimedia Foundation, Inc. (1 Montgomery Street, Suite 1600, San Francisco, CA 94104, USA) geladen. Dabei wird Ihre IP-Adresse an die Wikimedia Foundation übermittelt; einen Referrer senden wir nicht mit. Wir nutzen diese frei lizenzierten Fotos, um Ihnen die Insel zu zeigen (Art. 6 Abs. 1 lit. f DSGVO). Weitere Informationen: <a href=\"https://foundation.wikimedia.org/wiki/Policy:Privacy_policy/de\" target=\"_blank\" rel=\"noopener\">Datenschutzrichtlinie der Wikimedia Foundation</a>.</p><h3>6. Übermittlung in Drittländer</h3><p>GitHub und die Wikimedia Foundation sitzen in den USA. Für GitHub erfolgt die Übermittlung auf Grundlage des Angemessenheitsbeschlusses der EU-Kommission (EU-US Data Privacy Framework).</p><h3>7. Ihre Rechte</h3><p>Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18), Datenübertragbarkeit (Art. 20) und Widerspruch gegen Verarbeitungen auf Grundlage berechtigter Interessen (Art. 21). Eine erteilte Einwilligung können Sie jederzeit mit Wirkung für die Zukunft widerrufen (Art. 7 Abs. 3). Eine formlose E-Mail an <a href=\"mailto:friesh@gmx.de\">friesh@gmx.de</a> genügt.</p><p>Sie können sich außerdem bei einer Datenschutz-Aufsichtsbehörde beschweren, etwa beim Landesbeauftragten für Datenschutz und Informationsfreiheit Mecklenburg-Vorpommern, Werderstraße 74a, 19055 Schwerin.</p>"};
+ datenschutz:"<h2>Datenschutzerklärung</h2><p>Stand: November 2026</p><h3>1. Verantwortlicher</h3><p><b>Hans Fries</b><br>Im Dünenwald 4a<br>18586 Ostseebad Mönchgut<br>Deutschland<br>E-Mail: <a href=\"mailto:friesh@gmx.de\">friesh@gmx.de</a></p><h3>2. Das Wichtigste in Kürze</h3><p>Wir setzen keine Cookies zu Werbe- oder Analysezwecken ein und nutzen kein Tracking. Schriften und Programmbibliotheken sind direkt in die Seite eingebunden; es besteht keine Verbindung zu Google Fonts.</p><h3>3. Hosting und Server-Logfiles</h3><p>Diese Website wird über GitHub Pages bereitgestellt (GitHub Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, USA). Beim Aufruf verarbeitet GitHub technisch notwendige Daten: IP-Adresse, Datum und Uhrzeit, aufgerufene Seite, übertragene Datenmenge, Browser und Betriebssystem. Das dient der sicheren und stabilen Auslieferung der Seite (Art. 6 Abs. 1 lit. f DSGVO). Die Übermittlung in die USA erfolgt auf Grundlage des Angemessenheitsbeschlusses der EU-Kommission (EU-US Data Privacy Framework). Weitere Informationen: <a href=\"https://docs.github.com/de/site-policy/privacy-policies/github-general-privacy-statement\" target=\"_blank\" rel=\"noopener\">Datenschutzerklärung von GitHub</a>.</p><h3>4. Suche und Links</h3><p>Diese Seite speichert keine Eingaben. Wenn Sie auf „Unterkünfte suchen“ tippen, werden Ihre Suchangaben (Insel bzw. Ort, Reisedaten, Personen, Hund) als Teil der Adresse an unser Portal NordseeBnB (nordseebnb.de) übergeben; dort gilt die Datenschutzerklärung von NordseeBnB.</p><h3>5. Sprachassistent</h3><p>Der Sprachassistent startet nur, wenn Sie ihn öffnen und auf „Gespräch starten“ tippen; erst dann fragt Ihr Browser nach dem Zugriff auf das Mikrofon. Während des Gesprächs (höchstens 5 Minuten) werden Ihre Sprache und deren Abschrift in Echtzeit über unseren Vermittlungsserver bei Cloudflare (Cloudflare, Inc., 101 Townsend St., San Francisco, CA 94107, USA) an OpenAI (OpenAI Ireland Ltd. bzw. OpenAI, L.L.C., USA) übermittelt, dort verarbeitet und als gesprochene Antwort zurückgegeben. Wir speichern keine Aufnahmen. Die Anbieter können Eingaben nach eigenen Angaben für eine begrenzte Zeit, in der Regel bis zu 30 Tage, zur Missbrauchserkennung speichern. Rechtsgrundlage ist Ihre Einwilligung durch das Starten des Gesprächs (Art. 6 Abs. 1 lit. a DSGVO); Sie können das Gespräch jederzeit beenden. Bitte nennen Sie im Gespräch keine sensiblen Daten.</p><h3>6. Fotos von Wikimedia Commons</h3><p>Einige Fotos auf dieser Seite stammen von Wikimedia Commons und werden beim Aufruf direkt von den Servern der Wikimedia Foundation, Inc. (1 Montgomery Street, Suite 1600, San Francisco, CA 94104, USA) geladen. Dabei wird Ihre IP-Adresse an die Wikimedia Foundation übermittelt; einen Referrer senden wir nicht mit. Wir nutzen diese frei lizenzierten Fotos, um Ihnen die Insel zu zeigen (Art. 6 Abs. 1 lit. f DSGVO). Weitere Informationen: <a href=\"https://foundation.wikimedia.org/wiki/Policy:Privacy_policy/de\" target=\"_blank\" rel=\"noopener\">Datenschutzrichtlinie der Wikimedia Foundation</a>.</p><h3>7. Übermittlung in Drittländer</h3><p>GitHub, Cloudflare, OpenAI und die Wikimedia Foundation sitzen in den USA. Soweit die Anbieter unter dem EU-US Data Privacy Framework zertifiziert sind, erfolgt die Übermittlung auf Grundlage des Angemessenheitsbeschlusses der EU-Kommission, andernfalls auf Grundlage der EU-Standardvertragsklauseln. Für GitHub erfolgt die Übermittlung auf Grundlage des Angemessenheitsbeschlusses der EU-Kommission (EU-US Data Privacy Framework).</p><h3>8. Ihre Rechte</h3><p>Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18), Datenübertragbarkeit (Art. 20) und Widerspruch gegen Verarbeitungen auf Grundlage berechtigter Interessen (Art. 21). Eine erteilte Einwilligung können Sie jederzeit mit Wirkung für die Zukunft widerrufen (Art. 7 Abs. 3). Eine formlose E-Mail an <a href=\"mailto:friesh@gmx.de\">friesh@gmx.de</a> genügt.</p><p>Sie können sich außerdem bei einer Datenschutz-Aufsichtsbehörde beschweren, etwa beim Landesbeauftragten für Datenschutz und Informationsfreiheit Mecklenburg-Vorpommern, Werderstraße 74a, 19055 Schwerin.</p>"};
 function $(i){return document.getElementById(i)}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 var _lh0=location.hash;function _legalHash(h){h=typeof h==="string"?h:location.hash;if(h==="#impressum"||h==="#datenschutz")info(h.slice(1))}window.addEventListener("hashchange",function(){_legalHash()});setTimeout(function(){_legalHash(_lh0)},700);
@@ -349,6 +380,49 @@ function suche(){
   $("s_von").addEventListener("change",function(){var a=$("s_von").value;if(a&&(!$("s_bis").value||$("s_bis").value<=a)){var d=new Date(a);d.setDate(d.getDate()+7);$("s_bis").value=d.toISOString().slice(0,10)}});
   $("orteGrid").innerHTML=ORTE.map(function(o){return'<div class="ort"><div class="top"></div><div class="in"><h3>'+esc(o.n)+'</h3><div class="km">'+esc(o.km)+'</div><p>'+esc(o.t)+'</p><div class="tags">'+o.tags.map(function(x){return"<span>"+esc(x)+"</span>"}).join("")+'</div></div></div>'}).join("");
 })();
+
+var VOICE={endpoint:"https://nordsee-voice.friesh.workers.dev/live",maxMinutes:5},V={};
+function vOpen(){$("vPanel").classList.add("on");$("vFab").classList.add("hid")}
+function vClose(){vStop();$("vPanel").classList.remove("on");$("vFab").classList.remove("hid")}
+function vSay(r,t){var l=$("vLog");if(r===V.lr&&V.le&&r!=="sys")V.le.textContent+=t;else{V.le=document.createElement("div");V.le.className="vm "+r;V.le.textContent=t;l.appendChild(V.le);V.lr=r}l.scrollTop=l.scrollHeight}
+function vKb(){var t="SEITE: WangeroogeBnB – Ferienunterkünfte auf der Insel Wangerooge (Nordsee), direkt vom Gastgeber, ohne Provision. Alle Nordseeinseln und die Unterkünfte stehen im Portal NordseeBnB (nordseebnb.de). Vermieter können eine eigene Unterseite auf wangeroogebnb.de buchen: 99 Euro im ersten Jahr, danach 20 Euro pro Jahr, 0 Prozent Provision, 14 Tage gratis testen – Infos auf nordsee-webdesign.de.\nAuf Wangerooge sind noch keine Unterkünfte eingetragen; die Beispiel-Wohnungen Dünenvilla 3 und 5 liegen an der Ostsee in Thiessow auf Rügen.\n";
+  ["#orte","#tipps","#anreise","#unterkuenfte","#eindruecke"].forEach(function(q){var e=document.querySelector(q);if(e)t+="\n"+e.innerText.replace(/\n{2,}/g,"\n")+"\n"});
+  return t.slice(0,28000)}
+function vUi(on){$("vStart").classList.toggle("hid",on);$("vStop").classList.toggle("hid",!on)}
+function vStart(){
+  if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)||!window.RTCPeerConnection){vSay("sys","Ihr Browser unterstützt leider keine Sprachgespräche.");return}
+  if(!window.isSecureContext){vSay("sys","Sprachgespräche funktionieren nur über eine sichere Verbindung (https://).");return}
+  var st=$("vStatus");st.textContent="Mikrofon wird freigegeben …";
+  navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}}).then(function(stream){
+    V.stream=stream;vUi(true);st.textContent="Verbinde …";
+    var pc=V.pc=new RTCPeerConnection();pc.ontrack=function(e){$("vAudio").srcObject=e.streams[0]};
+    stream.getTracks().forEach(function(t){pc.addTrack(t,stream)});
+    var dc=V.dc=pc.createDataChannel("oai-events");dc.onmessage=function(e){try{vEvent(JSON.parse(e.data))}catch(_){}};
+    pc.onconnectionstatechange=function(){if(V.pc&&["failed","disconnected"].indexOf(V.pc.connectionState)>=0)vStop("Verbindung unterbrochen.")};
+    return pc.createOffer().then(function(o){return pc.setLocalDescription(o).then(function(){return o})}).then(function(offer){
+      return fetch(VOICE.endpoint,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({sdp:offer.sdp,mode:"gast",kb:vKb(),brand:"WangeroogeBnB",lang:"de",
+        greeting:"Moin und herzlich willkommen bei WangeroogeBnB! Ich helfe Ihnen gern – zu Orten, Anreise, Fähren und Kurabgabe auf Wangerooge. Was möchten Sie wissen?"})})})
+    .then(function(r){if(!r.ok)return r.json().catch(function(){return{}}).then(function(j){throw new Error("Server "+r.status+(j&&j.error?" – "+j.error:""))});return r.json()})
+    .then(function(j){if(!j.sdp)throw new Error(j.error||"keine Antwort");return V.pc.setRemoteDescription({type:"answer",sdp:j.sdp})})
+    .then(function(){V.t0=Date.now();st.textContent="Verbunden – sprechen Sie einfach los";
+      V.timer=setInterval(function(){var s=Math.floor((Date.now()-V.t0)/1000),left=VOICE.maxMinutes*60-s;$("vTime").textContent=Math.floor(s/60)+":"+String(s%60).padStart(2,"0");
+        if(left<=0)vStop("Gespräch nach "+VOICE.maxMinutes+" Minuten beendet.")},1000)});
+  }).catch(function(err){console.error(err);var m=String(err&&err.message||err),code=(m.match(/Server (\d+)/)||[])[1];
+    var hint=code==="403"?" (Technik: Diese Domain ("+location.origin+") ist im Worker nicht freigegeben.)":code==="500"?" (Technik: Im Worker fehlt der OpenAI-Schlüssel OPENAI_KEY.)":code==="502"?" (Technik: OpenAI hat die Sitzung abgelehnt – Schlüssel, Guthaben oder Modell prüfen.)":code?" (Technik: "+m+")":/Failed to fetch|NetworkError|Load failed/i.test(m)?" (Technik: Worker nicht erreichbar – zum Prüfen "+VOICE.endpoint+" im Browser öffnen.)":"";
+    vStop(err&&err.name==="NotAllowedError"?"Ohne Mikrofon-Freigabe ist kein Gespräch möglich. Bitte erlauben Sie das Mikrofon in den Browser-Einstellungen.":"Der Assistent ist gerade nicht erreichbar."+hint)})}
+function vEvent(ev){var o=$("vOrb"),st=$("vStatus");
+  switch(ev.type){
+    case "session.input_transcript.delta":vSay("u",ev.delta||"");o.classList.remove("talk");break;
+    case "session.output_transcript.delta":vSay("a",ev.delta||"");o.classList.add("talk");st.textContent="Spricht …";break;
+    case "session.delegation.created":st.textContent="Schaut nach …";break;
+    case "session.closed":vStop();break}}
+function vStop(msg){
+  try{V.dc&&V.dc.readyState==="open"&&V.dc.send(JSON.stringify({type:"session.close"}))}catch(_){}
+  var pc=V.pc;setTimeout(function(){try{pc&&pc.close()}catch(_){}},300);V.pc=null;V.dc=null;
+  if(V.stream)V.stream.getTracks().forEach(function(t){t.stop()});V.stream=null;
+  clearInterval(V.timer);V.timer=null;$("vTime").textContent="";vUi(false);V.lr=null;$("vOrb").classList.remove("talk");
+  if(msg)vSay("sys",msg);$("vStatus").textContent="Bereit – tippen Sie auf „Gespräch starten“"}
+if(location.hash==="#assistent")setTimeout(vOpen,500);
 </script>
 </body>
 </html>
