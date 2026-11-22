@@ -81,3 +81,5 @@ a{color:var(--brand)}
 .fuss .sig{font-size:.78rem;letter-spacing:.06em;text-transform:uppercase}
 @media (max-width:640px){.kopf nav a:not(.nav-cta){display:none}.kopf nav{justify-content:flex-end}.hero{min-height:70vh}.map{height:380px}}
 .pfeil-icon.klein .schild{display:none}
+.lang-select{display:none;border:1px solid var(--line);background:var(--white);color:var(--ink);border-radius:8px;padding:4px 6px;font:600 .8rem Inter,sans-serif}
+@media (max-width:640px){.langs.viele button{display:none}.langs.viele .lang-select{display:block}}

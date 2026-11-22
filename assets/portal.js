@@ -9,12 +9,15 @@
       el.hidden = el.getAttribute('lang') !== l;
     });
     btns.forEach(function (b) { b.classList.toggle('an', b.dataset.lang === l); });
+    var sel = document.querySelector('.lang-select'); if (sel) sel.value = l;
     document.documentElement.lang = l;
     try { localStorage.setItem('bnb_lang', l); } catch (e) {}
     window.__bnbLang = l;
     if (window.__bnbKarte) window.__bnbKarte();
   }
   btns.forEach(function (b) { b.addEventListener('click', function () { setzeSprache(b.dataset.lang); }); });
+  var auswahl = document.querySelector('.lang-select');
+  if (auswahl) auswahl.addEventListener('change', function () { setzeSprache(auswahl.value); });
   if (verfuegbar.length) {
     var start = null;
     try { start = localStorage.getItem('bnb_lang'); } catch (e) {}
