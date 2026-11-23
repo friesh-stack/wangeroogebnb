@@ -101,3 +101,18 @@
     window.__bnbKarte = zeichne;
   }
 })();
+(function () {
+  var f = document.getElementById('vform'); if (!f) return;
+  document.querySelectorAll('[data-paket]').forEach(function (a) {
+    a.addEventListener('click', function () { f.paket.value = a.dataset.paket; });
+  });
+  f.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var opts = Array.prototype.map.call(document.querySelectorAll('.zopt input:checked'), function (c) { return c.dataset.t.replace(/^\S+\s/, ''); });
+    var t = 'Hallo,\n\nich interessiere mich für ' + f.dataset.marke + ' (' + f.paket.options[f.paket.selectedIndex].text + ').\n' +
+      'Anzahl Unterkünfte: ' + f.anz.value + '\n' + (opts.length ? 'Zusatzoptionen: ' + opts.join(', ') + '\n' : '') +
+      (f.msg.value.trim() ? '\n' + f.msg.value.trim() + '\n' : '') + '\n' + f.name.value + '\n' + f.mail.value + (f.tel.value ? '\n' + f.tel.value : '');
+    location.href = 'mailto:' + f.dataset.mail + '?subject=' + encodeURIComponent('Vermieter-Anfrage ' + f.dataset.marke + ' – ' + f.name.value) + '&body=' + encodeURIComponent(t);
+    f.querySelector('.ok').hidden = false;
+  });
+})();
