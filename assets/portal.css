@@ -100,3 +100,5 @@ a{color:var(--brand)}
 .vform input,.vform select,.vform textarea{font:inherit;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--white);color:var(--ink)}
 .vform .voll,.vform .btn,.vform .ok{grid-column:1/-1}
 @media (max-width:640px){.vform{grid-template-columns:1fr}}
+
+.logo span{color:var(--accent)}
