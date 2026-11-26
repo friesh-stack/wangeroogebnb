@@ -102,3 +102,4 @@ a{color:var(--brand)}
 @media (max-width:640px){.vform{grid-template-columns:1fr}}
 
 .logo span{color:var(--accent)}
+.spiel-teaser{display:block;text-decoration:none;color:#f4e7c4;background:linear-gradient(135deg,#13213a,#1d4f73);border-radius:14px;padding:26px 24px;border:1px solid rgba(226,194,122,.45)}.spiel-teaser h2{color:#e2c27a;margin-bottom:.3em}.spiel-teaser p{margin:0 0 14px}
