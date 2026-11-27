@@ -116,3 +116,35 @@
     f.querySelector('.ok').hidden = false;
   });
 })();
+
+// ---- Fußball am Spieltag (HSV, St. Pauli, FC Bayern): nur an Tagen mit Spiel, live während des Spiels ----
+(function () {
+  var box = document.getElementById('fbBox'); if (!box || !window.fetch) return;
+  // beide Sprachen ausgeben; die Sprachumschaltung der Seite blendet die passende ein
+  function zw(d, e) { var l = document.documentElement.lang || 'de'; return '<span lang="de"' + (l.indexOf('de') ? ' hidden' : '') + '>' + d + '</span><span lang="en"' + (l.indexOf('de') ? '' : ' hidden') + '>' + e + '</span>'; }
+  var de = true;
+  var T = { titel: zw('Fußball heute', 'Football today'), heute: zw('Heute', 'Today'), live: 'LIVE', ende: zw('Endstand', 'Full time'), quelle: zw('Daten: OpenLigaDB', 'Data: OpenLigaDB') };
+  function esc(x) { return String(x).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function heute(t) { var d = new Date(t), n = new Date(); return d.getFullYear() === n.getFullYear() && d.getMonth() === n.getMonth() && d.getDate() === n.getDate(); }
+  function zeit(t) { return new Date(t).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }); }
+  function laden() {
+    fetch('https://places-proxy.friesh.workers.dev/fussball?v=' + encodeURIComponent(box.dataset.v)).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+      if (!d) return;
+      var zeilen = [], seen = {}, laeuft = false, offen = false;
+      Object.keys(d).forEach(function (id) {
+        var x = d[id] || {};
+        (x.live || []).forEach(function (m) { var k = m.h + m.a + m.t; if (seen[k]) return; seen[k] = 1; laeuft = true;
+          zeilen.push('<li class="live"><b>● ' + T.live + '</b> ' + esc(m.h) + ' <b>' + m.s[0] + ':' + m.s[1] + '</b> ' + esc(m.a) + '</li>'); });
+        (x.naechste || []).forEach(function (m) { var k = m.h + m.a + m.t; if (seen[k] || !heute(m.t)) return; seen[k] = 1; offen = true;
+          zeilen.push('<li>' + T.heute + ' ' + zeit(m.t) + ' · ' + esc(m.h) + ' – ' + esc(m.a) + ' <small>' + esc(m.liga || '') + '</small></li>'); });
+        (x.letzte || []).forEach(function (m) { var k = m.h + m.a + m.t; if (seen[k] || !heute(m.t)) return; seen[k] = 1;
+          zeilen.push('<li>' + T.ende + ': ' + esc(m.h) + ' <b>' + m.s[0] + ':' + m.s[1] + '</b> ' + esc(m.a) + '</li>'); });
+      });
+      if (!zeilen.length) { box.hidden = true; return; }
+      box.innerHTML = '<strong>⚽ ' + T.titel + '</strong><ul>' + zeilen.join('') + '</ul><small class="q">' + T.quelle + '</small>';
+      box.hidden = false;
+      if (laeuft || offen) setTimeout(laden, 120000);
+    }).catch(function () { });
+  }
+  laden();
+})();
